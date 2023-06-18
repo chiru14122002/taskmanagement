@@ -7,7 +7,7 @@ from cmail import sendmail
 from itsdangerous import URLSafeTimedSerializer
 import mysql.connector
 import os
-'''from io import BytesIO'''
+from io import BytesIO
 app=Flask(__name__)
 app.secret_key=secret_key
 app.config['SESSION_TYPE']='filesystem'
