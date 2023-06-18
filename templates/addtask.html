@@ -1,0 +1,23 @@
+{% extends 'homepage.html' %} 
+{% block addcss %}
+<link rel="stylesheet" href="{{url_for('static',filename='addtask.css')}}">
+{% endblock %} 
+{% block content %} 
+<br>
+    <div class="container">
+        <h1>Task Table</h1>
+        <form method="POST">
+            <label for="Task id">Task id:</label>
+            <input type="int" id="Task id" placeholder="Enter Task id" name="taskid" required/>
+            <label for="Task Name">Task Name:</label>
+            <input type="text" id="Task Name" placeholder="Enter Task Name" name="tasktitle" required/>
+            <label for="Due date">due date:</label>
+            <input type="date" id="date" name="duedate" required/>
+            <label for="Assign to">Assign to:</label>
+            <input type="email" id="Assign to" placeholder="Enter Task id" name="empemail" required/>
+            <label for="Task description">Task description:</label>
+            <textarea id="TASK description" class="content-field" placeholder="Enter Task description" name="taskcontent" required/></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+{% endblock %}

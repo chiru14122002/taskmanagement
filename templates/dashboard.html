@@ -1,0 +1,25 @@
+{% extends 'homepage.html' %} 
+{% block addcss %}
+<link rel="stylesheet" href="{{url_for('static',filename='addtask.css')}}">
+{% endblock %} 
+{% block content %} 
+<br>
+    <div class="container">
+        <h1>TASK TABLE STATUS</h1>
+            <label for="Task id">Task id:</label>
+            <input type="int" id="Task id"  name="taskid"  value="{{taskid}}" readonly/>
+            <label for="Task Name">Task Name:</label>
+            <input type="text" id="Task Name" name="tasktitle" value="{{tasktitle}}" readonly/>
+            <label for="Due date">due date:</label>
+            <input type="date" id="date" name="duedate"  value="{{duedate}}" readonly/>
+            <label for="Assign to">Assign to:</label>
+            <input type="email" id="Assign to" name="empemail" value="{{empmail}}" readonly/>
+            <label for="Task description">Task description:</label>
+            <input type="text" id="TASK description" name="taskcontent" value="{{taskcontent}}" readonly/>
+
+            
+            <a href="{{url_for('dashboard')}}"><button>back</button></a>
+
+            
+    </div>
+{% endblock %}

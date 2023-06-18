@@ -1,0 +1,27 @@
+{% extends 'homepage.html' %} 
+{% block addcss %}
+    <link rel="stylesheet" href="{{url_for('static',filename='userregistration.css')}}">
+{% endblock %} 
+{% block content %}
+<body>
+    <div class="container">
+        <h2> EMP Registration</h2>
+        <form method="POST">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="ename" required>
+
+            <label for="Department">Department</label>
+            <input type="text" id="Department" name="empdept" required>
+
+            <label for="email"> User Email</label>
+            <input type="email" id="email" name="empemail" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="emppassword" required>
+            
+            
+            
+            <button type="submit">Register</button>
+        </form>
+    </div>
+{% endblock %}
