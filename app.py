@@ -21,9 +21,9 @@ host=os.environ['RDS_HOSTNAME']
 port=os.environ['RDS_PORT']
 with mysql.connector.connect(host=host,user=user,password=password,db=db) as conn:
     cursor=conn.cursor(buffered=True)
-    cursor.execute('create table if not exists admin(`username` varchar(50) DEFAULT NULL,`email` varchar(70) NOT NULL,`password` varchar(30) DEFAULT NULL,`email_status` enum('confirmed','not confirmed') DEFAULT 'not confirmed',PRIMARY KEY (`email`),UNIQUE KEY `username` (`username`))')
+    cursor.execute('create table if not exists admin(username varchar(50),email varchar(70),password varchar(30),email_status enum("confirmed","not confirmed"),PRIMARY KEY (email),UNIQUE KEY username (username))')
     cursor.execute('create table if not exists emp(ename varchar(50) NOT NULL,empdept varchar(30) NOT NULL,empemail varchar(70) PRIMARY KEY NOT NULL,emppassword varchar(30) NOT NULL, added_by varchar(70))')
-    cursor.execute('create table if not exists`task` (`taskid` int NOT NULL,`tasktitle` varchar(100) NOT NULL,`duedate` date NOT NULL,`taskcontent` text NOT NULL, `empemail` varchar(70) NOT NULL,`assignedby` varchar(70) DEFAULT NULL,`status` varchar(60) DEFAULT 'not updated',PRIMARY KEY (`taskid`), FOREIGN KEY (`empemail`) REFERENCES `emp` (`empemail`), FOREIGN KEY (`assignedby`) REFERENCES `admin` (`email`))')
+    cursor.execute('create table if not exists task (taskid int,tasktitle varchar(100),duedate date ,taskcontent text,empemail varchar(70),assignedby varchar(70),status varchar(60) ("not updated"),PRIMARY KEY (taskid), FOREIGN KEY (empemail) REFERENCES emp (empemail), FOREIGN KEY (assignedby) REFERENCES admin (email))')
 mydb=mysql.connector.connect(host=host,user=user,password=password,db=db)
 @app.route('/')
 def index():
