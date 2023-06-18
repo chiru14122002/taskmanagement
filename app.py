@@ -376,5 +376,5 @@ def update(user):
         return render_template('update.html',taskid=taskid,tasktitle=tasktitle,duedate=duedate,taskcontent=taskcontent,status=status)
     else:
         return redirect(url_for('login')) 
-if __name__=="__main__"           
+if __name__=="__main__":
    app.run()
