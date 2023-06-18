@@ -6,13 +6,25 @@ from stoken import token
 from cmail import sendmail
 from itsdangerous import URLSafeTimedSerializer
 import mysql.connector
+import os
 '''from io import BytesIO'''
 app=Flask(__name__)
 app.secret_key=secret_key
 app.config['SESSION_TYPE']='filesystem'
 Session(app)
 '''excel.init_excel(app)'''
-mydb=mysql.connector.connect(host='localhost',user='root',password='14122002',db='ms')
+#mydb=mysql.connector.connect(host='localhost',user='root',password='14122002',db='ms')
+db= os.environ['RDS_DB_NAME']
+user=os.environ['RDS_USERNAME']
+password=os.environ['RDS_PASSWORD']
+host=os.environ['RDS_HOSTNAME']
+port=os.environ['RDS_PORT']
+with mysql.connector.connect(host=host,user=user,password=password,db=db) as conn:
+    cursor=conn.cursor(buffered=True)
+    cursor.execute('create table if not exists admin(`username` varchar(50) DEFAULT NULL,`email` varchar(70) NOT NULL,`password` varchar(30) DEFAULT NULL,`email_status` enum('confirmed','not confirmed') DEFAULT 'not confirmed',PRIMARY KEY (`email`),UNIQUE KEY `username` (`username`))')
+    cursor.execute('create table if not exists emp(ename varchar(50) NOT NULL,empdept varchar(30) NOT NULL,empemail varchar(70) PRIMARY KEY NOT NULL,emppassword varchar(30) NOT NULL, added_by varchar(70))')
+    cursor.execute('create table if not exists`task` (`taskid` int NOT NULL,`tasktitle` varchar(100) NOT NULL,`duedate` date NOT NULL,`taskcontent` text NOT NULL, `empemail` varchar(70) NOT NULL,`assignedby` varchar(70) DEFAULT NULL,`status` varchar(60) DEFAULT 'not updated',PRIMARY KEY (`taskid`), FOREIGN KEY (`empemail`) REFERENCES `emp` (`empemail`), FOREIGN KEY (`assignedby`) REFERENCES `admin` (`email`))')
+mydb=mysql.connector.connect(host=host,user=user,password=password,db=db)
 @app.route('/')
 def index():
     return render_template('title.html')
@@ -363,6 +375,6 @@ def update(user):
             return redirect(url_for('dashboard'))
         return render_template('update.html',taskid=taskid,tasktitle=tasktitle,duedate=duedate,taskcontent=taskcontent,status=status)
     else:
-        return redirect(url_for('login'))        
-                   
-app.run()
+        return redirect(url_for('login')) 
+if __name__=="__main__"           
+   app.run()
