@@ -240,7 +240,7 @@ def userregistration():
                 subject='username and password'
                 body=f"username and password for login\n\n{username,password}"
                 sendmail(to=useremail,body=body,subject=subject)
-                flash('mail send to')
+                flash('mail send to EMP')
 
            return redirect(url_for('userregistration'))
        return render_template('userregistration.html') 
@@ -375,6 +375,17 @@ def update(user):
             return redirect(url_for('dashboard'))
         return render_template('update.html',taskid=taskid,tasktitle=tasktitle,duedate=duedate,taskcontent=taskcontent,status=status)
     else:
-        return redirect(url_for('login')) 
+        return redirect(url_for('login'))
+@app.route('/empdashboard',methods=['GET','POST'])
+def empdashboard():
+    if session.get('user'):
+       '''username=session.get('user')
+       cursor=mydb.cursor(buffered=True)
+       cursor.execute("select taskid,tasktitle,duedate,empemail,taskcontent  from task where email=%s ",[username])
+       data=cursor.fetchall()
+       cursor.close()'''
+       return render_template('emptable.html')
+    else:
+        return redirect(url_for('login'))     
 if __name__=="__main__":
    app.run()

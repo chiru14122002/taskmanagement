@@ -1,0 +1,43 @@
+{% extends 'emphomepage.html' %} 
+{% block addcss %}
+    <link rel="stylesheet" href="{{url_for('static',filename='table.css')}}">
+{% endblock  %} 
+{% block content %} 
+{% if data=='empty' %} 
+<b>No result found</b>
+{% else %} 
+<center><h1>TASK TABLE STATUS</h1></center>
+<h3>task Status</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Task id</th>
+                <th>Task name</th>
+                <th>due date</th>
+                <th>Task description</th>
+                <th>Assigned to</th>
+                <th>Assigned by</th>
+                <th>Task Status</th>
+                <th>Update</th>
+                <th>Delete</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+           <!--{% for i in data %}-->
+            <tr>
+                <td>{{i[0]}}</td>
+                <td>{{i[1]}}</a></td>
+                <td>{{i[2]}}</td>
+                <td>{{i[4]}}</td>
+                <td>{{i[3]}}</td>
+                <td></td>
+                <td></td>
+                <td><a href="#">update</a></td>
+                <td><a href="#">delete</a></td>
+            </tr> 
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}        
+{% endblock %}
