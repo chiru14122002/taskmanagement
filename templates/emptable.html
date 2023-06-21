@@ -18,8 +18,8 @@
                 <th>Assigned to</th>
                 <th>Assigned by</th>
                 <th>Task Status</th>
-                <th>Update</th>
-                <th>Delete</th>
+                <th>submit</th>
+                
                 
             </tr>
         </thead>
@@ -31,10 +31,17 @@
                 <td>{{i[2]}}</td>
                 <td>{{i[4]}}</td>
                 <td>{{i[3]}}</td>
-                <td></td>
-                <td></td>
-                <td><a href="#">update</a></td>
-                <td><a href="#">delete</a></td>
+                <td>{{i[5]}}</td>
+                <td>not updated<br>
+                    <select>
+                    <option value="not started">not started</option>
+                    <option value="in progress">in progress</option>
+                    <option value="on hold">on hold</option>
+                    <option value="completed">completed</option>
+                    </select>
+                </td>
+                    <td><a href="{{url_for('submit',taskid=i[0])}}">Submit</a></td>
+
             </tr> 
             {% endfor %}
         </tbody>

@@ -30,20 +30,20 @@ def index():
     return render_template('title.html')
 @app.route('/login',methods=['GET','POST'])
 def login():
-    if session.get('users'):
+    if session.get('user'):
         return redirect(url_for('home'))
     if request.method=='POST':
-        username=request.form['username']
+        username=request.form['email']
         password=request.form['password']
         cursor=mydb.cursor(buffered=True)
-        cursor.execute('select count(*) from admin where username=%s',[username])
+        cursor.execute('select count(*) from admin where email=%s',[username])
         count=cursor.fetchone()[0]
         if count==1:
-            cursor.execute('select count(*) from admin where username=%s and password=%s',[username,password])
+            cursor.execute('select count(*) from admin where email=%s and password=%s',[username,password])
             p_count=cursor.fetchone()[0]
             if p_count==1:
                 session['user']=username
-                cursor.execute('select email_status from admin where username=%s',[username])
+                cursor.execute('select email_status from admin where email=%s',[username])
                 status=cursor.fetchone()[0]
                 cursor.close()
                 if status!='confirmed':
@@ -65,7 +65,7 @@ def inactive():
     if session.get('user'):
         username=session.get('user')
         cursor=mydb.cursor(buffered=True)
-        cursor.execute('select email_status from admin where username=%s',[username])
+        cursor.execute('select email_status from admin where email=%s',[username])
         status=cursor.fetchone()[0]
         cursor.close()
         if status=='confirmed':
@@ -79,7 +79,7 @@ def home():
     if session.get('user'):
         username=session.get('user')
         cursor=mydb.cursor(buffered=True)
-        cursor.execute('select email_status from admin where username=%s',[username])
+        cursor.execute('select email_status from admin where email=%s',[username])
         status=cursor.fetchone()[0]
         cursor.close()
         if status=='confirmed':
@@ -101,9 +101,9 @@ def resend():
     if session.get('user'):
         username=session.get('user')
         cursor=mydb.cursor(buffered=True)
-        cursor.execute('select email_status from admin where username=%s',[username])
+        cursor.execute('select email_status from admin where email=%s',[username])
         status=cursor.fetchone()[0]
-        cursor.execute('select email from admin where username=%s',[username])
+        cursor.execute('select email from admin where email=%s',[username])
         email=cursor.fetchone()[0]
         cursor.close()
         if status=='confirmed':
@@ -125,6 +125,7 @@ def registration():
         password=request.form['password']
         email=request.form['email']
         cursor=mydb.cursor(buffered=True)
+        mydb.commit()
         try:
             cursor.execute('insert into admin (username,password,email) values(%s,%s,%s)',(username,password,email))
         except mysql.connector.IntegrityError:
@@ -227,13 +228,21 @@ def userregistration():
            department=request.form['empdept']
            useremail=request.form['empemail']
            password=request.form['emppassword']
-           cursor=mydb.cursor(buffered=True)
+           email=session.get('user')
+           
+           
            try:
-              cursor.execute('insert into emp (ename,empdept,empemail,emppassword) values(%s,%s,%s,%s)',[username,department,useremail,password])
+               cursor = mydb.cursor(buffered=True)
+               cursor.execute('SELECT count(*) FROM emp WHERE empemail=%s',[useremail])
+               count= cursor.fetchone()[0]
+               count !=0
            except mysql.connector.IntegrityError:
                flash('an error')
                return render_template('userregistration.html')
+               
            else:
+                cursor=mydb.cursor(buffered=True)
+                cursor.execute('insert into emp (ename,empdept,empemail,emppassword,added_by) values(%s,%s,%s,%s,%s)',[username,department,useremail,password,email])
                 mydb.commit()
                 cursor.close()
                 flash('emp registration is success')
@@ -249,12 +258,12 @@ def userregistration():
 @app.route('/dashboard',methods=['GET','POST'])
 def dashboard():
     if session.get('user'):
-       '''username=session.get('user')
+       username=session.get('user')
        cursor=mydb.cursor(buffered=True)
-       cursor.execute("select taskid,tasktitle,duedate,empemail,taskcontent  from task where email=%s ",[username])
+       cursor.execute("select taskid,tasktitle,duedate,empemail,taskcontent,assignedby,status  from task where assignedby=%s ",[username])
        data=cursor.fetchall()
-       cursor.close()'''
-       return render_template('table.html')
+       cursor.close()
+       return render_template('table.html',data=data)
     else:
         return redirect(url_for('login'))    
 @app.route('/addtask',methods=['POST','GET'])
@@ -266,8 +275,9 @@ def addtask():
            duedate=request.form['duedate']
            email=request.form['empemail']
            content=request.form['taskcontent']
+           sender_email=session.get('user')
            cursor=mydb.cursor(buffered=True)
-           cursor.execute('insert into task (taskid,tasktitle,duedate,empemail,taskcontent) values(%s,%s,%s,%s,%s)',[taskid,taskname,duedate,email,content])
+           cursor.execute('insert into task (taskid,tasktitle,duedate,empemail,taskcontent,assignedby) values(%s,%s,%s,%s,%s,%s)',[taskid,taskname,duedate,email,content,sender_email])
            mydb.commit()
            cursor.close()
            flash('Task Assigned')
@@ -282,21 +292,20 @@ def addtask():
         return redirect(url_for('login'))
 @app.route('/emplogin',methods=['GET','POST'])
 def emplogin():
-    if session.get('users'):
+    if session.get('user'):
         return redirect(url_for('emphome'))
     if request.method=='POST':
-        username=request.form['ename']
+        username=request.form['empemail']
         password=request.form['emppassword']
         cursor=mydb.cursor(buffered=True)
-        cursor.execute('select count(*) from emp where ename=%s',[username])
+        cursor.execute('select count(*) from emp where empemail=%s',[username])
         count=cursor.fetchone()[0]
         if count==1:
-            cursor.execute('select count(*) from emp where ename=%s and emppassword=%s',[username,password])
+            cursor.execute('select count(*) from emp where empemail=%s and emppassword=%s',[username,password])
             p_count=cursor.fetchone()[0]
             if p_count==1:
                 session['user']=username
-                cursor.execute('select count(*) from emp where ename=%s',[username])
-                status=cursor.fetchone()[0]
+                cursor.execute('select count(*) from emp where empemail=%s',[username])
                 cursor.close()
                 return redirect(url_for('emphome'))
             else:
@@ -310,21 +319,10 @@ def emplogin():
     return render_template('emplogin.html') 
 @app.route('/emphomepage',methods=['GET','POST'])
 def emphome():
-    if session.get('user'):
+    if session.get('users'):
         return render_template('emphomepage.html')
     else:
         return redirect(url_for('emplogin'))
-@app.route('/viewnotes')
-def viewnotes():
-    if session.get('user'):
-       username=session.get('user')
-       cursor=mydb.cursor(buffered=True)
-       cursor.execute('select bin_to_uuid(nid) as uid,title,date from notes where added_by=%s order by date desc',[username])
-       data=cursor.fetchall()
-       cursor.close()
-       return render_template('table.html',data=data)
-    else:
-        return redirect(url_for('login'))
 @app.route('/emplogout')
 def emplogout():
     if session.get('user'):
@@ -332,21 +330,11 @@ def emplogout():
         return redirect(url_for('emplogin'))
     else:
         return redirect(url_for('emplogin')) 
-@app.route('/nid/<uid>')
-def vnid(uid):
+@app.route('/delete/<taskid>')
+def delete(taskid):
     if session.get('user'):
         cursor=mydb.cursor(buffered=True)
-        cursor.execute('select bin_to_uuid(nid),title,content,date from notes where bin_to_uuid(nid)=%s',[uid])
-        cursor.close()
-        uid,title,content,date=cursor.fetchone()
-        return render_template('viewnotes.html',title=title,content=content,date=date)
-    else:
-        return redirect(url_for('login'))
-@app.route('/delete/<user>')
-def delete(user):
-    if session.get('user'):
-        cursor=mydb.cursor(buffered=True)
-        cursor.execute('delete from task where taskid=%s',[user])
+        cursor.execute('delete from task where taskid=%s',[taskid])
         mydb.commit()
         cursor.close()
         flash('task deleted successfully')
@@ -354,38 +342,106 @@ def delete(user):
     else:
         return redirect(url_for('login'))
     
-@app.route('/update/<user>',methods=['GET','POST'])
-def update(user):
+@app.route('/update/<taskid>',methods=['GET','POST'])
+def update(taskid):
     if session.get('user'):
         cursor=mydb.cursor(buffered=True)
-        cursor.execute('select taskid,tasktitle,duedate,taskcontent,status from task where taskid=%s',[uid])
-        uid,title,content =cursor.fetchone()
+        cursor.execute('select taskid,tasktitle,duedate,empemail,taskcontent from task where taskid=%s',[taskid])
+        taskid,tasktitle,duedate,taskcontent,empemail=cursor.fetchone()
         cursor.close()
         if request.method=='POST':
             taskid=request.form['taskid']
             tasktitle=request.form['tasktitle']
             duedate=request.form['duedate']
+            empemail=request.form['empemail']
             taskcontent=request.form['taskcontent']
-            status=request.form['status']
+            user=session.get('user')
             cursor=mydb.cursor(buffered=True)
-            cursor.execute('update task set taskid=%s,tasktitle=%s,duedate=%s,taskcontent=%s,status=%s where taskid=%s',[taskid,tasktitle,duedate,taskcontent,status,user])
+            cursor.execute('update task set taskid=%s,tasktitle=%s,duedate=%s,taskcontent=%s,empemail=%s where assignedby=%s',[taskid,tasktitle,duedate,taskcontent,empemail,user])
             mydb.commit()
             cursor.close()
             flash('task upated successfully')
+            subject='Task is updated'
+            body=f"duedate and task\n\n{duedate,taskcontent}"
+            sendmail(to=empemail,body=body,subject=subject)
+            flash('mail send to emp ')
             return redirect(url_for('dashboard'))
-        return render_template('update.html',taskid=taskid,tasktitle=tasktitle,duedate=duedate,taskcontent=taskcontent,status=status)
+        return render_template('updatetask.html',taskid=taskid,tasktitle=tasktitle,duedate=duedate,empemail=empemail,taskcontent=taskcontent)
     else:
         return redirect(url_for('login'))
 @app.route('/empdashboard',methods=['GET','POST'])
 def empdashboard():
     if session.get('user'):
-       '''username=session.get('user')
+       username=session.get('user')
        cursor=mydb.cursor(buffered=True)
-       cursor.execute("select taskid,tasktitle,duedate,empemail,taskcontent  from task where email=%s ",[username])
+       cursor.execute("select taskid,tasktitle,duedate,empemail,taskcontent,assignedby,status  from task where empemail=%s ",[username])
        data=cursor.fetchall()
-       cursor.close()'''
-       return render_template('emptable.html')
+       cursor.close()
+       return render_template('emptable.html',data=data)
     else:
-        return redirect(url_for('login'))     
-if __name__=="__main__":
-   app.run()
+        return redirect(url_for('emplogin')) 
+@app.route('/empforget',methods=['GET','POST'])
+def empforgot():
+    if request.method=='POST':
+        email=request.form['empemail']
+        cursor=mydb.cursor(buffered=True)
+        cursor.execute('select count(*) from emp where empemail=%s',[email])
+        count=cursor.fetchone()[0]
+        cursor.close()
+        if count==1:
+            cursor=mydb.cursor(buffered=True)
+            cursor.execute('SELECT count(*) from emp where empemail=%s',[email])
+            status=cursor.fetchone()[0]
+            cursor.close()
+            subject='Forget Password'
+            confirm_link=url_for('empreset',token=token(email,salt=salt2),_external=True)
+            body=f"Use this link to reset your password-\n\n{confirm_link}"
+            sendmail(to=email,body=body,subject=subject)
+            flash('Reset link sent check your email')
+            return redirect(url_for('emplogin'))
+        else:
+            flash('Invalid email id')
+            return render_template('empforgot.html')
+    return render_template('empforgot.html')
+'''@app.route('/submit/<taskid>',methods=['GET','POST'])
+def submit(taskid):
+    if session.get('user'):
+        cursor=mydb.cursor(buffered=True)
+        cursor.execute('select status from task where taskid=%s',[taskid])
+        status=cursor.fetchone()
+        cursor.close()
+        if request.method=='POST':
+            status=request.form['status']
+            user=session.get('user')
+            cursor=mydb.cursor(buffered=True)
+            cursor.execute('update task set status=%s where empemail=%s',[status,user])
+            mydb.commit()
+            cursor.close()
+            flash('status updated')
+            return redirect(url_for('empdashboard'))
+        else:
+           return redirect(url_for('emplogin'))
+    return redirect(url_for('emplogin')) '''   
+@app.route('/empreset/<token>',methods=['GET','POST'])
+def empreset(token):
+    try:
+        serializer=URLSafeTimedSerializer(secret_key)
+        empemail=serializer.loads(token,salt=salt2,max_age=180)
+    except:
+        abort(404,'Link Expired')
+    else:
+        if request.method=='POST':
+            newpassword=request.form['npassword']
+            confirmpassword=request.form['cpassword']
+            if newpassword==confirmpassword:
+                cursor=mydb.cursor(buffered=True)
+                cursor.execute('update emp set emppassword=%s where empemail=%s',[newpassword,empemail])
+                mydb.commit()
+                flash('Reset Successful')
+                return redirect(url_for('emplogin'))
+            else:
+                flash('Passwords mismatched')
+                return render_template('newpassword.html')
+        return render_template('newpassword.html')                  
+if __name__=="__main__" :                  
+    app.run()

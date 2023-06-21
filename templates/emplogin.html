@@ -15,10 +15,10 @@
     <h1> EMP Login</h1>
     <form method="post">
       <label for="username">Username:</label>
-      <input type="text" id="username" name="ename" placeholder="Enter your username">
+      <input type="text" id="empemail" name="empemail" placeholder="Enter your username">
       <label for="password">Password:</label>
       <input type="password" id="password" name="emppassword" placeholder="Enter your password">
-      <a href="{{url_for('forgot')}}">Forget password?</a>
+      <a href="{{url_for('empforgot')}}">Forget password?</a>
       <input type="submit">
     </form>
   </div>

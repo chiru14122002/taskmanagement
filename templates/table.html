@@ -24,18 +24,20 @@
             </tr>
         </thead>
         <tbody>
-           <!--{% for i in data %}-->
+           {% for i in data %}
             <tr>
                 <td>{{i[0]}}</td>
                 <td>{{i[1]}}</a></td>
                 <td>{{i[2]}}</td>
                 <td>{{i[4]}}</td>
                 <td>{{i[3]}}</td>
-                <td></td>
-                <td></td>
-                <td><a href="#">update</a></td>
-                <td><a href="#">delete</a></td>
-            </tr> 
+                <td>{{i[5]}}</td>
+                <td>not updated<br>
+                    
+                </td>
+                <td><a href="{{url_for('update',taskid=i[0])}}">update</a></td>
+                <td><a href="{{url_for('delete',taskid=i[0])}}">delete</a></td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
