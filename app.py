@@ -319,7 +319,7 @@ def emplogin():
     return render_template('emplogin.html') 
 @app.route('/emphomepage',methods=['GET','POST'])
 def emphome():
-    if session.get('user'):
+    if session.get('users'):
         return render_template('emphomepage.html')
     else:
         return redirect(url_for('emplogin'))
@@ -403,11 +403,11 @@ def empforgot():
             flash('Invalid email id')
             return render_template('empforgot.html')
     return render_template('empforgot.html')
-'''@app.route('/submit/<taskid>',methods=['GET','POST'])
-def submit(taskid):
+@app.route('/submit',methods=['GET','POST'])
+def submit(user):
     if session.get('user'):
         cursor=mydb.cursor(buffered=True)
-        cursor.execute('select status from task where taskid=%s',[taskid])
+        cursor.execute('select status from task where taskid=%s',[user])
         status=cursor.fetchone()
         cursor.close()
         if request.method=='POST':
@@ -418,10 +418,10 @@ def submit(taskid):
             mydb.commit()
             cursor.close()
             flash('status updated')
-            return redirect(url_for('empdashboard'))
+            return redirect(url_for('empdashboard.html'))
         else:
            return redirect(url_for('emplogin'))
-    return redirect(url_for('emplogin')) '''   
+    return redirect(url_for('emplogin')) 
 @app.route('/empreset/<token>',methods=['GET','POST'])
 def empreset(token):
     try:
@@ -442,6 +442,6 @@ def empreset(token):
             else:
                 flash('Passwords mismatched')
                 return render_template('newpassword.html')
-    return render_template('newpassword.html')                  
+        return render_template('newpassword.html')                  
 if __name__=="__main__" :                  
     app.run()
