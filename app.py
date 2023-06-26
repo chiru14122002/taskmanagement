@@ -319,7 +319,7 @@ def emplogin():
     return render_template('emplogin.html') 
 @app.route('/emphomepage',methods=['GET','POST'])
 def emphome():
-    if session.get('users'):
+    if session.get('user'):
         return render_template('emphomepage.html')
     else:
         return redirect(url_for('emplogin'))
